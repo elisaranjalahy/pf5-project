@@ -20,7 +20,12 @@ let string_of_base (b : base) : string =
 
 (* explode a string into a char list *)
 let explode (str : string) : char list =
-  failwith "À compléter"
+  let rec newCharList i list =
+    if i < 0 then list      
+    else newCharList (i - 1) (str.[i] :: list)
+    in
+    newCharList (String.length str - 1) []
+  ;;
 
 
 (* conversions *)
@@ -29,7 +34,12 @@ let base_of_char (c : char) : base =
 
 
 let dna_of_string (s : string) : base list =
-  failwith "À compléter"
+  let rec newBaseList i list = 
+    if i < 0 then list
+    else newBaseList (i-1) ((base_of_char s.[i])::list)
+  in
+  newBaseList (String.length s -1) []
+;;
 
 
 let string_of_dna (seq : dna) : string =
