@@ -97,7 +97,17 @@ let first_occ (slice : 'a list) (list : 'a list)
 
 let rec slices_between
           (start : 'a list) (stop : 'a list) (list : 'a list) : 'a list list =
-  failwith "A faire"
+  match first_occ start list with
+  | None -> []
+  | Some (before_start, after_start) -> (
+    match first_occ stop after_start with
+      | None -> []
+      | Some (before_stop, after_stop) ->
+        [before_stop] @ slices_between start stop after_stop
+  )
+;;
+
+  
 
 (*
   slices_between [1; 1] [1; 2] [1; 1; 1; 1; 2; 1; 3; 1; 2] = [[1]]
