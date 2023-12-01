@@ -49,7 +49,14 @@ let dna_of_string (s : string) : base list =
 
 
 let string_of_dna (seq : dna) : string =
-  failwith "À compléter"
+  let rec aux seq =
+    match seq with
+    | [] -> ""
+    |[b]->string_of_base b
+    | bb :: seq ->(string_of_base bb)^(aux seq) 
+  in
+  aux seq
+;;
 
 
 
