@@ -92,8 +92,48 @@ type 'a consensus = Full of 'a | Partial of 'a * int | No_consensus
    (Partial (a, n)) if a is the only element of the list with the
    greatest number of occurrences and this number is equal to n,
    No_consensus otherwise. *)
+let rec nbr_occ l b: int =
+  match l with
+  |[] -> 0
+  |[a]-> if a==b then 1 else 0
+  |x::ll -> if x==b then 1+nbr_occ ll b else nbr_occ ll b
+
+;;
+
+let rec enlever_doublons  (list : 'a list) : 'a list =
+  match list with
+    | [] -> []
+    | hd :: tl ->
+        let sans_hd = List.filter (fun x -> x <> hd) tl in
+        hd :: enlever_doublons sans_hd
+;;
+
+let occ lst : ('a * int) list =
+  let e = enlever_doublons lst in
+  List.map (fun x -> (x, nbr_occ lst x)) e
+;;
+
+
+
 let consensus (list : 'a list) : 'a consensus =
-  failwith "À compléter"
+  let occurrences = occ list in
+    let max_occ= ref 0 in
+    let consensus_valeur = ref None in
+
+    List.iter (fun (valeur, nbr) ->
+      if nbr > !max_occ then (
+        max_occ := nbr;
+        consensus_valeur := Some valeur
+      ) else if nbr = !max_occ then (
+        consensus_valeur := None
+      )
+    ) occurrences;
+
+    match !consensus_valeur with
+    | Some valeur when !max_occ = List.length list -> Full valeur
+    | Some valeur -> Partial (valeur, !max_occ)
+    | None -> No_consensus
+;;
 
 (*
    consensus [1; 1; 1; 1] = Full 1
@@ -108,7 +148,32 @@ let consensus (list : 'a list) : 'a consensus =
  *)
 
 let consensus_sequence (ll : 'a list list) : 'a consensus list =
-  failwith "À compléter"
+  let taille = List.length (List.hd ll) in
+  let rec position pos =
+    List.map (fun l -> List.nth l pos) ll
+  in
+  let rec consensus_pos pos =
+    let valeur = position pos in
+    let occurrences = occ valeur in
+    let max_occ = ref 0 in
+    let consensus_valeur = ref None in
+
+    List.iter (fun (valeur, nbr) ->
+      if nbr > !max_occ then (
+        max_occ := nbr;
+        consensus_valeur := Some valeur
+      ) else if nbr = !max_occ then (
+        consensus_valeur := None
+      )
+    ) occurrences;
+
+    match !consensus_valeur with
+    | Some valeur when !max_occ = taille -> Full valeur
+    | Some valeur -> Partial (valeur, !max_occ)
+    | None -> No_consensus
+  in
+  List.init taille consensus_pos
+;;
 
 (*
  consensus_sequence [[1; 1; 1; 1];
