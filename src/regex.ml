@@ -1,13 +1,27 @@
 open Regex_base
 
 let rec repeat n l =
-  failwith "À compléter"
+  if n > 0 then l@(repeat (n-1) l)
+  else
+    []
+;;
 
 let rec expr_repeat n e =
-  failwith "À compléter"
+  match n with
+  | 0 -> Eps
+  | 1 -> e
+  | _ -> Concat (e, expr_repeat (n - 1) e)
+;;
 
 let rec is_empty e =
-  failwith "À compléter"
+  match e with
+  | Eps -> true
+  | Base _ -> false
+  | Joker -> false
+  | Concat (a, b) -> is_empty a && is_empty b
+  | Alt (a, b) -> is_empty a && is_empty b
+  | Star a -> is_empty a
+;;
 
 let rec null e =
   failwith "À compléter"
