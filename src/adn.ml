@@ -135,14 +135,14 @@ type 'a consensus = Full of 'a | Partial of 'a * int | No_consensus
    (Partial (a, n)) if a is the only element of the list with the
    greatest number of occurrences and this number is equal to n,
    No_consensus otherwise. *)
-let rec nbr_occ : 'a list -> 'a -> int =
-    fun l elem ->
-      match l with
-      | [] -> 0
-      | [a] -> if a = elem then 1 else 0
-      | x::ll -> if x = elem then 1 + nbr_occ ll elem else nbr_occ ll elem
-  ;;
-
+let rec nbr_occ l b: int =
+  match l with
+  |[] -> 0
+  |[a]-> if a==b then 1 else 0
+  |x::ll -> if x==b then 1+nbr_occ ll b else nbr_occ ll b
+  
+;;
+  
 let rec enlever_doublons  (list : 'a list) : 'a list =
   match list with
     | [] -> []
