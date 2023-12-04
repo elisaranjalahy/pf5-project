@@ -48,8 +48,17 @@ let dna_of_string (s : string) : base list =
 ;;
 
 
+
 let string_of_dna (seq : dna) : string =
-  failwith "À compléter"
+  let rec aux seq =
+    match seq with
+    | [] -> ""
+    |[b]->string_of_base b
+    | bb :: seq ->(string_of_base bb)^(aux seq) 
+  in
+  aux seq
+;;
+  
 
 
 
@@ -87,7 +96,17 @@ let rec cut_prefix (slice : 'a list) (list : 'a list) : 'a list option =
 *)
 let first_occ (slice : 'a list) (list : 'a list)
     : ('a list * 'a list) option =
-  failwith "À compléter"
+    let rec get_before_list slice list newList =
+      match slice, list with 
+      | [],_ -> Some ([],list)
+      | _,[] -> None
+      | x::slice_tail, y::list_tail -> 
+        match cut_prefix slice list with
+        |None -> get_before_list slice list_tail (y::newList)
+        |Some(suf) -> Some(List.rev newList,suf)
+      in get_before_list slice list []
+;;
+
 (*
   first_occ [1; 2] [1; 1; 1; 2; 3; 4; 1; 2] = Some ([1; 1], [3; 4; 1; 2])
   first_occ [1; 1] [1; 1; 1; 2; 3; 4; 1; 2] = Some ([], [1; 2; 3; 4; 1; 2])
@@ -113,8 +132,10 @@ let rec slices_between
   slices_between [1; 1] [1; 2] [1; 1; 1; 1; 2; 1; 3; 1; 2] = [[1]]
  *)
 
-let cut_genes (dna : dna) : (dna list) =
-  failwith "A faire"
+let cut_genes (dna : dna) : (dna list) = 
+  slices_between [A; T; G] [T; A; A] dna
+;;
+
 
 (*---------------------------------------------------------------------------*)
 (*                          CONSENSUS SEQUENCES                              *)
