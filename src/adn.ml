@@ -204,12 +204,13 @@ let consensus (list : 'a list) : 'a consensus =
  *)
 
  let consensus_sequence (ll : 'a list list) : 'a consensus list =
-  let rec liste_consensus ll =
-    match ll with
-    |[] ->[]
-    |[]::r -> []@liste_consensus r
-    |l::r -> [consensus l]@liste_consensus r
-  in liste_consensus ll
+  let taille = match ll with 
+  |[] -> 0 
+  | hd :: _ -> List.length hd in
+  List.init taille (fun pos ->
+    let valeur = List.map (fun l -> List.nth l pos) ll in
+    consensus valeur
+  )
 ;;
 
 (*
