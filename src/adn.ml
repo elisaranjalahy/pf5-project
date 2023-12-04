@@ -49,7 +49,15 @@ let dna_of_string (s : string) : base list =
 
 
 let string_of_dna (seq : dna) : string =
-  failwith "À compléter"
+  let rec aux seq =
+    match seq with
+    | [] -> ""
+    |[b]->string_of_base b
+    | bb :: seq ->(string_of_base bb)^(aux seq) 
+  in
+  aux seq
+;;
+
 
 
 
@@ -127,13 +135,13 @@ type 'a consensus = Full of 'a | Partial of 'a * int | No_consensus
    (Partial (a, n)) if a is the only element of the list with the
    greatest number of occurrences and this number is equal to n,
    No_consensus otherwise. *)
-let rec nbr_occ l b: int =
-  match l with
-  |[] -> 0
-  |[a]-> if a==b then 1 else 0
-  |x::ll -> if x==b then 1+nbr_occ ll b else nbr_occ ll b
-
-;;
+let rec nbr_occ : 'a list -> 'a -> int =
+    fun l elem ->
+      match l with
+      | [] -> 0
+      | [a] -> if a = elem then 1 else 0
+      | x::ll -> if x = elem then 1 + nbr_occ ll elem else nbr_occ ll elem
+  ;;
 
 let rec enlever_doublons  (list : 'a list) : 'a list =
   match list with
@@ -182,32 +190,13 @@ let consensus (list : 'a list) : 'a consensus =
    are empty, return the empty sequence.
  *)
 
-let consensus_sequence (ll : 'a list list) : 'a consensus list =
-  let taille = List.length (List.hd ll) in
-  let rec position pos =
-    List.map (fun l -> List.nth l pos) ll
-  in
-  let rec consensus_pos pos =
-    let valeur = position pos in
-    let occurrences = occ valeur in
-    let max_occ = ref 0 in
-    let consensus_valeur = ref None in
-
-    List.iter (fun (valeur, nbr) ->
-      if nbr > !max_occ then (
-        max_occ := nbr;
-        consensus_valeur := Some valeur
-      ) else if nbr = !max_occ then (
-        consensus_valeur := None
-      )
-    ) occurrences;
-
-    match !consensus_valeur with
-    | Some valeur when !max_occ = taille -> Full valeur
-    | Some valeur -> Partial (valeur, !max_occ)
-    | None -> No_consensus
-  in
-  List.init taille consensus_pos
+ let consensus_sequence (ll : 'a list list) : 'a consensus list =
+  let rec liste_consensus ll =
+    match ll with
+    |[] ->[]
+    |[]::r -> []@liste_consensus r
+    |l::r -> [consensus l]@liste_consensus r
+  in liste_consensus ll
 ;;
 
 (*
