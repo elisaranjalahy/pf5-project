@@ -26,10 +26,11 @@ let rec is_empty e =
 let rec null e =
   match e with
   | Eps -> true
-  | Base _ | Joker -> false
+  | Base _ -> false
+  | Joker -> false
   | Concat (a, b) -> null a && null b
   | Alt (a, b) -> null a || null b
-  | Star a -> null a
+  | Star a -> if a=Joker then true else null a 
 ;;
 
 let rec is_finite e =
