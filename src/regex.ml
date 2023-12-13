@@ -40,7 +40,7 @@ let rec is_finite e =
   | Joker -> true
   | Concat (a,b) -> is_finite a && is_finite b
   | Alt (a,b) -> is_finite a && is_finite b
-  | Star _ -> false
+  | Star a -> if a=Eps then true else false
 ;;
 
 let product l1 l2 =
