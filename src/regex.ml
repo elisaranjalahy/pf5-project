@@ -43,7 +43,16 @@ let rec is_finite e =
 ;;
 
 let product l1 l2 =
-  failwith "À compléter"
+  let concatener hd1 a = hd1 @ a in
+  let rec product_aux acc l1 =
+    match l1 with
+    | [] -> acc
+    | x :: ll1 ->
+        let acc' = union_sorted acc (List.map (concatener x) l2) in
+        product_aux acc' ll1
+  in
+  product_aux [] l1
+;;
 
 let enumerate alphabet e =
   failwith "À compléter"
