@@ -100,10 +100,22 @@ let rec alphabet_expr e =
 type answer =
   Infinite | Accept | Reject
 
-
 let accept_partial e w =
-  failwith "à completer"
+  match e with
+  | Star a -> if w=[] then Accept else Infinite
+  | _ -> 
+    match (enumerate (alphabet_expr e) e) with
+    | Some(l) -> 
+      let rec contains a list =
+        match list with
+       | [] -> false
+       | x::tl -> if a=x then true else contains a tl 
+      in if contains w l then Accept else Reject
+
+    | None -> Reject
+
 
 ;;
+
 
   
