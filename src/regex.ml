@@ -33,6 +33,20 @@ let rec null e =
   | Star _ -> true 
 ;;
 
+
+
+let rec is_finite_aux e=
+  match e with
+  | Eps->true
+  | Base a->false
+  | Joker -> false
+  | Concat(Eps,Eps)->true
+  | Alt(Eps,Eps)-> true
+  | Star b-> is_finite_aux b
+  | Concat(a,b)->false
+  | Alt(a,b) -> false
+;;
+
 let rec is_finite e =
   match e with
   | Eps -> true
@@ -40,7 +54,7 @@ let rec is_finite e =
   | Joker -> true
   | Concat (a,b) -> is_finite a && is_finite b
   | Alt (a,b) -> is_finite a && is_finite b
-  | Star a -> is_finite a
+  | Star a -> is_finite_aux a
 ;;
 
 let product l1 l2 =
@@ -55,8 +69,23 @@ let product l1 l2 =
   product_aux [] l1
 ;;
 
-let enumerate alphabet e =
-  failwith "À compléter"
+
+let rec enumerate alphabet e =
+  match e with
+  | Eps -> Some [[]]
+  | Base a -> Some [[a]]
+  | Joker -> Some (List.map (fun a -> [a]) alphabet)
+  | Concat (a, b) -> 
+      (match (enumerate alphabet a), (enumerate alphabet b) with
+       | Some p, Some q -> Some (List.concat (List.map (fun a -> List.map (fun b -> a@b)q)p))
+       | _, _ -> None)
+  | Alt (a,b) -> 
+      (match (enumerate alphabet a), (enumerate alphabet b) with
+       | Some p, Some q -> Some (p@q)
+       | _, _ -> None)
+  | Star a -> if (is_empty a) then Some [[]] else None
+
+;;
 
 let rec alphabet_expr e =
   match e with
@@ -71,5 +100,10 @@ let rec alphabet_expr e =
 type answer =
   Infinite | Accept | Reject
 
+
 let accept_partial e w =
-  failwith "À compléter"
+  failwith "à completer"
+
+;;
+
+  
