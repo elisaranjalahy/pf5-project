@@ -48,6 +48,7 @@ let dna_of_string (s : string) : base list =
 ;;
 
 
+
 let string_of_dna (seq : dna) : string =
   let rec aux seq =
     match seq with
@@ -94,7 +95,17 @@ let rec cut_prefix (slice : 'a list) (list : 'a list) : 'a list option =
 *)
 let first_occ (slice : 'a list) (list : 'a list)
     : ('a list * 'a list) option =
-  failwith "À compléter"
+    let rec get_before_list slice list newList =
+      match slice, list with 
+      | [],_ -> Some ([],list)
+      | _,[] -> None
+      | x::slice_tail, y::list_tail -> 
+        match cut_prefix slice list with
+        |None -> get_before_list slice list_tail (y::newList)
+        |Some(suf) -> Some(List.rev newList,suf)
+      in get_before_list slice list []
+;;
+
 (*
   first_occ [1; 2] [1; 1; 1; 2; 3; 4; 1; 2] = Some ([1; 1], [3; 4; 1; 2])
   first_occ [1; 1] [1; 1; 1; 2; 3; 4; 1; 2] = Some ([], [1; 2; 3; 4; 1; 2])
@@ -120,8 +131,10 @@ let rec slices_between
   slices_between [1; 1] [1; 2] [1; 1; 1; 1; 2; 1; 3; 1; 2] = [[1]]
  *)
 
-let cut_genes (dna : dna) : (dna list) =
-  failwith "A faire"
+let cut_genes (dna : dna) : (dna list) = 
+  slices_between [A; T; G] [T; A; A] dna
+;;
+
 
 (*---------------------------------------------------------------------------*)
 (*                          CONSENSUS SEQUENCES                              *)
@@ -134,8 +147,48 @@ type 'a consensus = Full of 'a | Partial of 'a * int | No_consensus
    (Partial (a, n)) if a is the only element of the list with the
    greatest number of occurrences and this number is equal to n,
    No_consensus otherwise. *)
+let rec nbr_occ l b: int =
+  match l with
+  |[] -> 0
+  |[a]-> if a==b then 1 else 0
+  |x::ll -> if x==b then 1+nbr_occ ll b else nbr_occ ll b
+  
+;;
+  
+let rec enlever_doublons  (list : 'a list) : 'a list =
+  match list with
+    | [] -> []
+    | hd :: tl ->
+        let sans_hd = List.filter (fun x -> x <> hd) tl in
+        hd :: enlever_doublons sans_hd
+;;
+
+let occ lst : ('a * int) list =
+  let e = enlever_doublons lst in
+  List.map (fun x -> (x, nbr_occ lst x)) e
+;;
+
+
+
 let consensus (list : 'a list) : 'a consensus =
-  failwith "À compléter"
+  let occurrences = occ list in
+    let max_occ= ref 0 in
+    let consensus_valeur = ref None in
+
+    List.iter (fun (valeur, nbr) ->
+      if nbr > !max_occ then (
+        max_occ := nbr;
+        consensus_valeur := Some valeur
+      ) else if nbr = !max_occ then (
+        consensus_valeur := None
+      )
+    ) occurrences;
+
+    match !consensus_valeur with
+    | Some valeur when !max_occ = List.length list -> Full valeur
+    | Some valeur -> Partial (valeur, !max_occ)
+    | None -> No_consensus
+;;
 
 (*
    consensus [1; 1; 1; 1] = Full 1
@@ -149,8 +202,15 @@ let consensus (list : 'a list) : 'a consensus =
    are empty, return the empty sequence.
  *)
 
-let consensus_sequence (ll : 'a list list) : 'a consensus list =
-  failwith "À compléter"
+ let consensus_sequence (ll : 'a list list) : 'a consensus list =
+  let taille = match ll with 
+  |[] -> 0 
+  | hd :: _ -> List.length hd in
+  List.init taille (fun pos ->
+    let valeur = List.map (fun l -> List.nth l pos) ll in
+    consensus valeur
+  )
+;;
 
 (*
  consensus_sequence [[1; 1; 1; 1];
